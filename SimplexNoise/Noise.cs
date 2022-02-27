@@ -15,48 +15,41 @@ namespace SimplexNoise
     /// </summary>
     public class Noise
     {
-        public float[] Calc1D(int width, float scale)
+        public float[] Calc1D(int width)
         {
             var values = new float[width];
             for (var i = 0; i < width; i++)
-                values[i] = Generate(i * scale) * 128 + 128;
+                values[i] = Generate(i);
             return values;
         }
 
-        public float[,] Calc2D(int width, int height, float scale)
+        public float[,] Calc2D(int width, int height)
         {
             var values = new float[width, height];
             for (var i = 0; i < width; i++)
                 for (var j = 0; j < height; j++)
-                    values[i, j] = Generate(i * scale, j * scale) * 128 + 128;
+                    values[i, j] = Generate(i, j);
             return values;
         }
 
-        public float[, ,] Calc3D(int width, int height, int length, float scale)
+        public float[, ,] Calc3D(int width, int height, int length)
         {
             var values = new float[width, height, length];
             for (var i = 0; i < width; i++)
                 for (var j = 0; j < height; j++)
                     for (var k = 0; k < length; k++)
-                        values[i, j, k] = Generate(i * scale, j * scale, k * scale) * 128 + 128;
+                        values[i, j, k] = Generate(i, j, k);
             return values;
         }
 
-        public float CalcPixel1D(int x, float scale)
-            => Generate(x * scale) * 128 + 128;
+        public Noise(float scale, int seed)
+            => (Scale, Seed) = (scale, seed);
 
-        public float CalcPixel2D(int x, int y, float scale)
-            => Generate(x * scale, y * scale) * 128 + 128;
-
-        public float CalcPixel3D(int x, int y, int z, float scale)
-            => Generate(x * scale, y * scale, z * scale) * 128 + 128;
-
-        public Noise(int seed)
-            => Seed = seed;
-
-        public Noise()
-            : this(0)
+        public Noise(float scale)
+            : this(scale, 0)
         { }
+
+        public float Scale { get; init; }
 
         private int _seed;
         public int Seed
@@ -86,6 +79,7 @@ namespace SimplexNoise
         /// <returns></returns>
         public float Generate(float x)
         {
+            x *= Scale;
             var i0 = FastFloor(x);
             var i1 = i0 + 1;
             var x0 = x - i0;
@@ -111,6 +105,8 @@ namespace SimplexNoise
         /// <returns></returns>
         public float Generate(float x, float y)
         {
+            x *= Scale;
+            y *= Scale;
             const float F2 = 0.366025403f; // F2 = 0.5*(sqrt(3.0)-1.0)
             const float G2 = 0.211324865f; // G2 = (3.0-Math.sqrt(3.0))/6.0
 
@@ -181,6 +177,9 @@ namespace SimplexNoise
 
         public float Generate(float x, float y, float z)
         {
+            x *= Scale;
+            y *= Scale;
+            z *= Scale;
             // Simple skewing factors for the 3D case
             const float F3 = 0.333333333f;
             const float G3 = 0.166666667f;
